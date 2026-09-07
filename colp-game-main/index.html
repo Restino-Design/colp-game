@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Colp</title>
+  <link rel="icon" href="textures/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/src/styles.css">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+</head>
+<body>
+  <!-- Background Image Layer -->
+  <div id="bg-container"></div>
+
+  <!-- PlayCanvas 3D Canvas -->
+  <canvas id="application-canvas"></canvas>
+
+  <!-- 2D VFX Overlay Canvas -->
+  <canvas id="vfx-canvas"></canvas>
+
+  <!-- UI Overlay -->
+  <div id="ui-overlay">
+    
+    <!-- START / MENU SCREEN -->
+    <div id="menu-screen" class="screen active">
+      <div class="glass-card menu-card">
+        <div class="input-group">
+          <label for="nickname-input">NICKNAME</label>
+          <input type="text" id="nickname-input" maxlength="15" placeholder="Enter your nickname..." autocomplete="off" spellcheck="false">
+        </div>
+
+        <button id="play-btn" class="btn btn-primary btn-glow">
+          <span class="btn-text">PLAY</span>
+          <span class="btn-sub">30s RUN</span>
+        </button>
+
+        <!-- Audio Volume Controls -->
+        <div class="volume-controls">
+          <div class="volume-row">
+            <span class="vol-label"><span class="vol-icon">🔊</span> SFX</span>
+            <input type="range" id="sfx-slider" min="0" max="100" value="80" class="volume-slider">
+            <span class="vol-val" id="sfx-val">80%</span>
+          </div>
+          <div class="volume-row">
+            <span class="vol-label"><span class="vol-icon">🎵</span> BGM</span>
+            <input type="range" id="music-slider" min="0" max="100" value="60" class="volume-slider">
+            <span class="vol-val" id="music-val">60%</span>
+          </div>
+        </div>
+
+        <button id="highscores-btn" class="btn btn-secondary">
+          <span>🏆 HIGHSCORES</span>
+        </button>
+      </div>
+
+      <!-- Creator & Partner Logos in Bottom Right of Menu -->
+      <div class="menu-credits-bottom-right">
+        <!-- Restinocore (1.5x larger, aligned & positioned slightly higher) -->
+        <a href="https://restinocore.vercel.app/" target="_blank" rel="noopener noreferrer" class="credit-item restinocore-item" title="Restinocore">
+          <img src="/textures/restinocore_logo.png" alt="Restinocore" class="credit-logo restinocore-logo">
+        </a>
+
+        <!-- Santos Tech (Collaboration) -->
+        <div class="credit-group">
+          <span class="credit-label">Em colaboração com:</span>
+          <a href="https://www.instagram.com/escolasantostech" target="_blank" rel="noopener noreferrer" class="credit-item" title="Escola Santos Tech">
+            <img src="/textures/santos_logo.avif" alt="Santos Tech" class="credit-logo santos-logo">
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- IN-GAME HUD -->
+    <div id="hud-screen" class="screen">
+      <div class="hud-top">
+        <!-- Timer (Top Left) -->
+        <div class="hud-box timer-box">
+          <div class="hud-label">TIME</div>
+          <div class="timer-value" id="timer-display">30.0</div>
+          <div class="timer-bar-container">
+            <div class="timer-bar" id="timer-bar"></div>
+          </div>
+        </div>
+
+        <!-- Score (Top Center) -->
+        <div class="hud-box score-box">
+          <div class="hud-label">SCORE</div>
+          <div class="score-value" id="score-display">0</div>
+        </div>
+
+        <!-- Combo Multiplier (Top Right with Glowing Effect) -->
+        <div class="hud-box combo-box" id="combo-container">
+          <div class="hud-label">COMBO BOOST</div>
+          <div class="combo-value" id="combo-display">1x</div>
+          <div class="combo-timer-bar">
+            <div class="combo-bar-fill" id="combo-bar-fill"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Player Tag -->
+      <div class="player-tag" id="player-tag">
+        <span class="dot"></span>
+        <span id="player-tag-name">Player</span>
+      </div>
+
+      <!-- Helper Hint with Mouse Left-Click Icon -->
+      <div class="hud-hint">
+        <svg class="mouse-lclick-icon" viewBox="0 0 24 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2" y="2" width="20" height="28" rx="10" stroke="currentColor" stroke-width="2"/>
+          <line x1="12" y1="2" x2="12" y2="13" stroke="currentColor" stroke-width="1.8"/>
+          <line x1="2" y1="13" x2="22" y2="13" stroke="currentColor" stroke-width="1.8"/>
+          <path d="M 2 12 Q 2 2 12 2 L 12 13 Z" fill="#f59e0b"/>
+        </svg>
+        <span>to whack</span>
+      </div>
+    </div>
+
+    <!-- HIGHSCORES MODAL -->
+    <div id="highscores-modal" class="modal">
+      <div class="glass-card modal-card">
+        <div class="modal-header">
+          <h2>🏆 LEADERBOARD & HIGHSCORES</h2>
+          <button id="close-highscores-btn" class="close-btn">&times;</button>
+        </div>
+
+        <div class="leaderboard-container">
+          <table class="leaderboard-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Player</th>
+                <th>Score</th>
+                <th>Max Combo</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboard-body">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+
+        <button id="back-from-highscores-btn" class="btn btn-secondary modal-back-btn">CLOSE</button>
+      </div>
+    </div>
+
+    <!-- GAME OVER SCREEN -->
+    <div id="gameover-screen" class="screen">
+      <div class="glass-card gameover-card">
+        <div class="gameover-header">
+          <div class="badge-tag danger">TIME UP</div>
+          <h1 class="gameover-title">GAME OVER</h1>
+        </div>
+
+        <div class="record-badge" id="record-badge" style="display: none;">
+          🌟 NEW RECORD! 🌟
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card main-stat">
+            <div class="stat-label">FINAL SCORE</div>
+            <div class="stat-value" id="final-score">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">MASCOTS WHACKED</div>
+            <div class="stat-value" id="final-hits">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">MAX COMBO</div>
+            <div class="stat-value" id="final-combo">1x</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">BEST RECORD</div>
+            <div class="stat-value" id="best-score-display">0</div>
+          </div>
+        </div>
+
+        <div class="gameover-actions">
+          <button id="restart-btn" class="btn btn-primary btn-glow">
+            <span class="btn-text">PLAY AGAIN</span>
+            <span class="btn-sub">NEW RUN</span>
+          </button>
+          <button id="menu-btn" class="btn btn-secondary">
+            <span>MAIN MENU</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Custom Aim Reticle Cursor -->
+  <div id="aim-cursor" class="aim-cursor">
+    <img id="aim-base" src="/textures/aim.png" alt="" class="aim-img" draggable="false">
+    <img id="aim-click" src="/textures/aim_click.png" alt="" class="aim-click-img" draggable="false">
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
